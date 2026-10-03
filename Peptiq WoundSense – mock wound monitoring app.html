@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Peptiq WoundSense – mock app</title>
+<style>
+:root{--bg:#f4f7ef;--card:#fff;--ink:#1f2d1c;--mute:#667460;--line:#dfe6d6;--moss:#5f8340;--deep:#27401f;--acid:#e2b92e;--ok:#79a24f;--alk:#4a82a6;--warn:#c0502e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b12;--card:#1e281b;--ink:#e8efe2;--mute:#9aa991;--line:#2e3b2a;--moss:#8fb86a;--deep:#a9d083}}
+:root[data-theme="dark"]{--bg:#141b12;--card:#1e281b;--ink:#e8efe2;--mute:#9aa991;--line:#2e3b2a;--moss:#8fb86a;--deep:#a9d083}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Nunito Sans",system-ui,sans-serif}
+.app{max-width:560px;margin:0 auto;min-height:100vh;padding:0 16px 90px}
+header{padding:20px 0 8px}
+h1{font:800 22px/1.2 Georgia,serif;margin:0;color:var(--deep)}
+.sub{color:var(--mute);font-size:13px}
+.pets{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
+.pet{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:8px 14px;text-align:left;cursor:pointer;font:inherit}
+.pet b{display:block}.pet small{color:var(--mute)}
+.pet.on{border-color:var(--moss);box-shadow:inset 0 0 0 1px var(--moss)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.hero{display:flex;gap:16px;align-items:center}
+.patch{width:84px;height:84px;border-radius:18px;flex:none;border:2px solid var(--line);transition:background .4s}
+.big{font:800 34px/1 Georgia,serif}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;font-weight:700;font-size:13px;color:#fff}
+.row{display:flex;justify-content:space-between;gap:10px}
+.kv{flex:1}.kv b{display:block;font-size:20px}.kv span{color:var(--mute);font-size:12px}
+h2{font-size:15px;margin:0 0 8px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav div{display:flex;max-width:560px;width:100%}
+nav button{flex:1;border:0;background:none;padding:12px 4px;color:var(--mute);font:inherit;font-weight:700;cursor:pointer}
+nav button.on{color:var(--moss);box-shadow:inset 0 3px 0 var(--moss)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--alk);outline-offset:2px}
+.btn{background:var(--moss);color:#fff;border:0;border-radius:12px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer;width:100%}
+.btn.alt{background:none;color:var(--moss);border:1px solid var(--moss)}
+input[type=range]{width:100%}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input[type=number],select,textarea{width:100%;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.scale{height:14px;border-radius:7px;background:linear-gradient(90deg,var(--acid) 0%,var(--acid) 28%,var(--ok) 43%,var(--ok) 57%,var(--alk) 72%,var(--alk) 100%)}
+.cam{height:150px;border-radius:14px;background:repeating-linear-gradient(45deg,#e9d6c4,#e9d6c4 10px,#e2cdb8 10px,#e2cdb8 20px);display:grid;place-items:center;position:relative}
+.cam .patch{width:96px;height:96px}
+.cam em{position:absolute;bottom:6px;left:10px;font-size:11px;color:#6a5646;font-style:normal}
+.log{border-left:3px solid var(--line);padding:2px 0 2px 12px;margin:0 0 14px}
+.alert{border-left:5px solid var(--warn);}
+.alert.info{border-color:var(--alk)}.alert.good{border-color:var(--ok)}
+svg{width:100%;height:auto;display:block}
+.tabs{display:none}.tabs.on{display:block}
+.note{font-size:12px;color:var(--mute)}
+.toast{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);background:var(--deep);color:#fff;padding:9px 16px;border-radius:99px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="app">
+<header><h1>Peptiq WoundSense</h1><div class="sub">Demo app · simulated data for the pH-responsive wound matrix</div></header>
+<div class="pets" id="pets"></div>
+
+<section class="tabs on" id="t-home"></section>
+
+<section class="tabs" id="t-scan">
+ <div class="card"><h2>Read the patch</h2>
+  <div class="cam"><div class="patch" id="sp"></div><em>Camera preview (mock) – align patch in frame</em></div>
+  <label for="sl">Simulate patch colour (stands in for camera colour detection)</label>
+  <input type="range" id="sl" min="0" max="100" value="50" aria-label="Simulated patch colour">
+  <div class="scale" style="margin-top:6px"></div>
+  <div class="row note"><span>pH &lt; 6.0 yellow</span><span>6.0–7.5 green</span><span>&gt; 7.5 blue</span></div>
+  <div class="row" style="margin-top:12px;align-items:center"><div><div class="big" id="sph">7.0</div><div class="note">estimated wound pH</div></div><span class="chip" id="sst">Healing range</span></div>
+ </div>
+ <div class="card"><h2>Add context</h2>
+  <div class="row"><div class="kv"><label for="wl">Length (cm)</label><input type="number" id="wl" value="3.0" step="0.1" min="0"></div><div class="kv"><label for="ww">Width (cm)</label><input type="number" id="ww" value="2.0" step="0.1" min="0"></div></div>
+  <label for="ex">Exudate</label><select id="ex"><option>None</option><option selected>Light</option><option>Moderate</option><option>Heavy</option></select>
+  <label for="nt">Notes</label><textarea id="nt" rows="2" placeholder="Odour, swelling, patch adherence…"></textarea>
+  <div style="margin-top:12px"><button class="btn" id="save">Save reading</button></div>
+ </div>
+</section>
+
+<section class="tabs" id="t-log"></section>
+<section class="tabs" id="t-alerts"></section>
+</div>
+<nav><div id="nav"></div></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const C={acid:[226,185,46],ok:[121,162,79],alk:[74,130,166]};
+const mix=(a,b,t)=>a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+const rgb=a=>`rgb(${a})`;
+function colourFor(ph){ // yellow<6, green 6-7.5, blue>7.5, smooth blends
+ if(ph<=5.6)return C.acid; if(ph<6.4)return mix(C.acid,C.ok,(ph-5.6)/.8);
+ if(ph<=7.1)return C.ok; if(ph<7.9)return mix(C.ok,C.alk,(ph-7.1)/.8); return C.alk;}
+function status(ph){
+ if(ph<6)return{k:'Acidic',c:'var(--acid)',m:'Below 6.0 – monitor; check exudate and tissue.'};
+ if(ph<=7.5)return{k:'Healing range',c:'var(--ok)',m:'pH 6.0–7.5 – within target window.'};
+ return{k:'Alkaline',c:'var(--alk)',m:'Above 7.5 – review for infection risk.'};}
+const D=(n,ph,a,ex,nt)=>({day:n,ph,area:a,ex,nt});
+const pets=[
+ {id:0,name:'Bella',sp:'Dog · 4 y',wound:'Bite wound, left flank',start:'12 Sep',log:[D(0,7.9,9.0,'Heavy','Contaminated; cleaned & patched'),D(2,7.8,8.4,'Heavy','Patch changed'),D(4,7.5,7.2,'Moderate','Less swelling'),D(7,7.1,5.6,'Moderate',''),D(10,6.8,4.1,'Light','Granulation visible'),D(13,6.6,2.9,'Light','')]},
+ {id:1,name:'Milo',sp:'Cat · 7 y',wound:'Abscess, hind leg',start:'25 Sep',log:[D(0,7.6,4.5,'Moderate','Drained'),D(2,7.7,4.4,'Moderate',''),D(4,7.9,4.6,'Heavy','Odour noted'),D(6,8.0,5.0,'Heavy','Area increasing')]},
+ {id:2,name:'Daisy',sp:'Cow · 3 y',wound:'Pressure sore, hip',start:'1 Sep',log:[D(0,5.4,14,'Light',''),D(5,5.7,12.5,'Light',''),D(10,5.8,11.8,'Light','Slow progress'),D(16,5.6,11.7,'None','Stalled'),D(22,5.5,11.6,'None','Consider vet review')]}];
+let cur=0,tab='home';
+const P=()=>pets[cur], L=()=>P().log, last=()=>L()[L().length-1];
+
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2000)}
+
+function chart(vals,labels,opts){ // simple SVG line chart
+ const W=320,H=120,p=26,mn=opts.min,mx=opts.max,x=i=>p+i*(W-p-8)/Math.max(vals.length-1,1),y=v=>H-18-(v-mn)/(mx-mn)*(H-30);
+ let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opts.label}">`;
+ (opts.bands||[]).forEach(b=>s+=`<rect x="${p}" y="${y(b[1])}" width="${W-p-8}" height="${y(b[0])-y(b[1])}" fill="${b[2]}" opacity=".18"/>`);
+ [mn,(mn+mx)/2,mx].forEach(v=>s+=`<text x="2" y="${y(v)+4}" font-size="9" fill="var(--mute)">${v%1?v.toFixed(1):v}</text>`);
+ s+=`<polyline fill="none" stroke="${opts.col}" stroke-width="2.5" points="${vals.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`;
+ vals.forEach((v,i)=>s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${opts.col}"/>`);
+ labels.forEach((l,i)=>{if(labels.length<8||i%2==0)s+=`<text x="${x(i)}" y="${H-3}" font-size="9" text-anchor="middle" fill="var(--mute)">D${l}</text>`});
+ return s+'</svg>';}
+
+function alerts(){
+ const l=L(),a=last(),o=[];const s=status(a.ph);
+ if(a.ph>7.5)o.push(['Possible infection risk',`pH ${a.ph} is above 7.5. Inspect wound and consider culture or antibiotics per vet judgement.`,'']);
+ if(l.length>=3&&l.slice(-3).every((r,i,arr)=>i==0||r.ph>=arr[i-1].ph)&&a.ph>7.2)o.push(['pH rising 3 readings in a row','Trend is moving away from healing range.','']);
+ if(l.length>=2&&a.area>l[l.length-2].area)o.push(['Wound area increased',`${l[l.length-2].area} → ${a.area} cm² since last reading.`,'']);
+ if(l.length>=3&&Math.abs(l[l.length-3].area-a.area)<.6&&a.day>14)o.push(['Healing has stalled','Area barely changed over 3 readings. Consider vet review or product change.','']);
+ if(a.ex==='Heavy')o.push(['Heavy exudate','Patch may saturate early. Plan an earlier change.','info']);
+ const days=a.day;if(days>=0)o.push(['Next patch change due',`Suggested in ${a.ph>7.5?'1–2':'3–4'} days based on current pH.`,'info']);
+ if(!o.some(x=>x[2]===''))o.unshift(['On track','No warning rules triggered.','good']);
+ return o;}
+
+function render(){
+ $('pets').innerHTML=pets.map(p=>`<button class="pet ${p.id==cur?'on':''}" onclick="cur=${p.id};render()"><b>${p.name}</b><small>${p.sp}</small></button>`).join('');
+ const a=last(),s=status(a.ph),first=L()[0],red=Math.round((1-a.area/first.area)*100);
+ $('t-home').innerHTML=`
+ <div class="card"><div class="sub">${P().wound} · started ${P().start}</div>
+  <div class="hero" style="margin-top:10px"><div class="patch" style="background:${rgb(colourFor(a.ph))}"></div>
+  <div><div class="big">pH ${a.ph.toFixed(1)}</div><span class="chip" style="background:${s.c}">${s.k}</span><div class="note" style="margin-top:6px">${s.m}</div></div></div></div>
+ <div class="card row"><div class="kv"><b>Day ${a.day}</b><span>since treatment</span></div><div class="kv"><b>${a.area} cm²</b><span>wound area</span></div><div class="kv"><b style="color:${red>=0?'var(--ok)':'var(--warn)'}">${red>=0?'−':'+'}${Math.abs(red)}%</b><span>vs day 0</span></div></div>
+ <div class="card"><h2>pH trend</h2>${chart(L().map(r=>r.ph),L().map(r=>r.day),{min:5,max:9,col:'var(--moss)',label:'pH over time',bands:[[6,7.5,'#79a24f'],[7.5,9,'#4a82a6'],[5,6,'#e2b92e']]})}<div class="note">Shaded bands follow the colour key on the patch.</div></div>
+ <div class="card"><h2>Wound area (cm²)</h2>${chart(L().map(r=>r.area),L().map(r=>r.day),{min:0,max:Math.ceil(Math.max(...L().map(r=>r.area))/2)*2,col:'var(--alk)',label:'Wound area over time'})}</div>
+ <div class="card"><h2>Active alerts</h2>${alerts().slice(0,2).map(x=>`<div class="note" style="color:var(--ink)"><b>${x[0]}</b> – ${x[1]}</div>`).join('')}</div>`;
+ $('t-log').innerHTML=`<div class="card"><h2>Reading history · ${P().name}</h2>${[...L()].reverse().map(r=>{const s=status(r.ph);return `<div class="log"><div class="row"><b>Day ${r.day}</b><span class="chip" style="background:${s.c}">pH ${r.ph.toFixed(1)}</span></div><div class="note">${r.area} cm² · exudate: ${r.ex}${r.nt?'<br>'+r.nt:''}</div></div>`}).join('')}</div>
+ <button class="btn alt" onclick="share()">Copy summary for vet</button>`;
+ $('t-alerts').innerHTML=alerts().map(x=>`<div class="card alert ${x[2]}"><b>${x[0]}</b><div class="note" style="color:var(--ink)">${x[1]}</div></div>`).join('')+`<div class="card"><h2>Alert rules (editable in full app)</h2><div class="note">pH &lt; 6.0 acidic flag · pH &gt; 7.5 alkaline flag · 3 rising pH readings · area increase · stalled healing after day 14 · heavy exudate · reminder to change patch</div></div>`;
+}
+function share(){
+ const a=last(),t=`${P().name} (${P().sp}) – ${P().wound}\nDay ${a.day}: pH ${a.ph}, area ${a.area} cm², exudate ${a.ex}\nAlerts: ${alerts().map(x=>x[0]).join('; ')}`;
+ try{navigator.clipboard.writeText(t);toast('Summary copied')}catch(e){toast('Copy not available here')}}
+
+function setNav(){
+ const items=[['home','Overview'],['scan','Scan'],['log','History'],['alerts','Alerts']];
+ $('nav').innerHTML=items.map(i=>`<button class="${tab==i[0]?'on':''}" onclick="tab='${i[0]}';show()">${i[1]}${i[0]=='alerts'&&alerts().some(x=>x[2]==='')?' •':''}</button>`).join('');}
+function show(){document.querySelectorAll('.tabs').forEach(e=>e.classList.toggle('on',e.id=='t-'+tab));setNav();window.scrollTo(0,0)}
+
+const phFromSlider=v=>5+v/100*3.5;
+function upd(){const ph=phFromSlider(+$('sl').value),s=status(ph);$('sp').style.background=rgb(colourFor(ph));$('sph').textContent=ph.toFixed(1);const c=$('sst');c.textContent=s.k;c.style.background=s.c}
+$('sl').oninput=upd;
+$('save').onclick=()=>{
+ const ph=+phFromSlider(+$('sl').value).toFixed(1),day=last().day+3;
+ L().push(D(day,ph,+(+$('wl').value*+$('ww').value).toFixed(1),$('ex').value,$('nt').value));
+ $('nt').value='';render();tab='home';show();toast('Reading saved')};
+render();upd();show();
+</script></body></html>
